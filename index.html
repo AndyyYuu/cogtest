@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>智云贷款顾问</title>
+<style>
+:root{--b0:#060b18;--b1:#0d1525;--b2:#111e33;--b3:#162540;--bd:#1e3354;--bdl:#243f66;--acc:#3b82f6;--ok:#10b981;--warn:#f59e0b;--bad:#ef4444;--pur:#8b5cf6;--t1:#e2e8f0;--t2:#94a3b8;--t3:#64748b}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,'Segoe UI',sans-serif;background:var(--b0);color:var(--t1);height:100vh;display:flex;flex-direction:column;overflow:hidden}
+#topbar{background:var(--b1);border-bottom:1px solid var(--bd);display:flex;align-items:center;padding:0 18px;height:50px;gap:14px;flex-shrink:0}
+.logo{display:flex;align-items:center;gap:9px;font-size:14px;font-weight:700}
+.logo-ic{width:28px;height:28px;background:linear-gradient(135deg,#1d4ed8,#7c3aed);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px}
+.vd{width:1px;height:22px;background:var(--bd)}
+.phase-bar{display:flex;gap:5px;align-items:center}
+.ph{padding:4px 10px;border-radius:14px;font-size:11px;font-weight:600;border:1px solid var(--bd);color:var(--t3);transition:all .3s}
+.ph.on.p1{background:rgba(16,185,129,.12);border-color:var(--ok);color:var(--ok)}
+.ph.on.p2{background:rgba(245,158,11,.12);border-color:var(--warn);color:var(--warn)}
+.ph.on.p3{background:rgba(239,68,68,.12);border-color:var(--bad);color:var(--bad)}
+.ph.done{opacity:.45}
+.arr{color:var(--t3);font-size:10px}
+.op-tag{margin-left:auto;font-size:11px;color:var(--pur);background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.25);padding:3px 10px;border-radius:10px;display:flex;align-items:center;gap:5px}
+.op-dot{width:6px;height:6px;border-radius:50%;background:var(--pur);animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+#stimer{font-size:11px;color:var(--t3);font-variant-numeric:tabular-nums}
+#main{display:flex;flex:1;overflow:hidden}
+#chat{flex:1;display:flex;flex-direction:column;border-right:1px solid var(--bd);min-width:0}
+#chdr{padding:11px 18px;border-bottom:1px solid var(--bd);background:var(--b1);display:flex;align-items:center;gap:11px}
+.av{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#0f4c81,#4338ca);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;position:relative}
+.av-dot{position:absolute;bottom:1px;right:1px;width:8px;height:8px;background:var(--ok);border-radius:50%;border:2px solid var(--b1)}
+.ainfo h3{font-size:13px;font-weight:600}
+.ainfo p{font-size:11px;color:var(--t3)}
+.sbadge{margin-left:auto;font-size:11px;padding:3px 9px;border-radius:10px;font-weight:600}
+.sbadge.live{background:rgba(16,185,129,.12);color:var(--ok);border:1px solid rgba(16,185,129,.3)}
+.sbadge.end{background:rgba(245,158,11,.12);color:var(--warn);border:1px solid rgba(245,158,11,.3)}
+#msgs{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column;gap:12px;scroll-behavior:smooth}
+#msgs::-webkit-scrollbar{width:3px}#msgs::-webkit-scrollbar-thumb{background:var(--bd);border-radius:3px}
+.msg{display:flex;gap:8px;align-items:flex-start;max-width:84%}
+.msg.ai{align-self:flex-start}.msg.us{align-self:flex-end;flex-direction:row-reverse}
+.mav{width:28px;height:28px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:12px}
+.msg.ai .mav{background:linear-gradient(135deg,#0f4c81,#4338ca)}
+.msg.us .mav{background:linear-gradient(135deg,#065f46,#047857)}
+.bbl{padding:10px 14px;border-radius:14px;font-size:13.5px;line-height:1.7}
+.msg.ai .bbl{background:var(--b2);border:1px solid var(--bd);border-top-left-radius:3px}
+.msg.us .bbl{background:linear-gradient(135deg,#1a365d,#1e40af);border:1px solid rgba(59,130,246,.3);border-top-right-radius:3px}
+.bmeta{font-size:10px;color:var(--t3);margin-top:2px;padding:0 2px}
+.msg.us .bmeta{text-align:right}
+.sysmsg{text-align:center;font-size:11px;color:var(--t3);padding:3px 0}
+.systag{display:inline-block;padding:2px 9px;border-radius:9px;background:var(--b2);border:1px solid var(--bd)}
+#typing{display:none;align-items:center;gap:8px;padding:3px 0}
+#typing.show{display:flex}
+.tdots{display:flex;gap:3px}
+.tdots span{width:6px;height:6px;border-radius:50%;background:var(--acc);opacity:.6;animation:bounce 1.2s infinite}
+.tdots span:nth-child(2){animation-delay:.2s}.tdots span:nth-child(3){animation-delay:.4s}
+@keyframes bounce{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-5px)}}
+.ttxt{font-size:11px;color:var(--t3)}
+#iarea{padding:13px 18px;background:var(--b1);border-top:1px solid var(--bd)}
+#rtrow{display:flex;align-items:center;gap:7px;margin-bottom:7px;font-size:11px;color:var(--t3)}
+.rtbar{flex:1;height:3px;background:var(--b3);border-radius:3px;overflow:hidden}
+.rtfill{height:100%;width:0%;border-radius:3px;transition:width 1s linear;background:var(--acc)}
+.irow{display:flex;gap:8px;align-items:flex-end}
+#inp{flex:1;background:var(--b2);border:1px solid var(--bd);border-radius:10px;padding:10px 14px;color:var(--t1);font-size:13.5px;resize:none;font-family:inherit;line-height:1.5;max-height:100px;outline:none;transition:border-color .2s}
+#inp:focus{border-color:var(--acc)}
+#inp::placeholder{color:var(--t3)}
+#snd{width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,#1d4ed8,#7c3aed);border:none;cursor:pointer;color:#fff;font-size:16px;display:flex;align-items:center;justify-content:center;transition:opacity .15s;flex-shrink:0}
+#snd:hover{opacity:.9}#snd:disabled{opacity:.35;cursor:default}
+#apanel{width:310px;flex-shrink:0;background:var(--b1);overflow-y:auto;display:flex;flex-direction:column}
+#apanel::-webkit-scrollbar{width:3px}#apanel::-webkit-scrollbar-thumb{background:var(--bd);border-radius:3px}
+.ps{padding:12px 14px;border-bottom:1px solid var(--bd)}
+.pt{font-size:10px;font-weight:700;color:var(--t3);letter-spacing:1px;text-transform:uppercase;margin-bottom:9px}
+.stbox{background:var(--b2);border:1px solid var(--bdl);border-radius:7px;padding:9px 11px;font-size:12px;color:var(--t2);line-height:1.6}
+.stlbl{font-size:10px;color:var(--pur);font-weight:700;letter-spacing:.5px;margin-bottom:4px}
+.mgrid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.mc{background:var(--b2);border:1px solid var(--bd);border-radius:8px;padding:8px 10px}
+.ml{font-size:10px;color:var(--t3);margin-bottom:2px}
+.mv{font-size:18px;font-weight:700;font-variant-numeric:tabular-nums}
+.ms{font-size:10px;color:var(--t3)}
+.cg{color:var(--ok)}.cw{color:var(--warn)}.cb{color:var(--bad)}.cn{color:var(--acc)}
+.fbr{margin-bottom:8px}
+.fbh{display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px}
+.fbl{color:var(--t2)}.fbv{color:var(--t1);font-weight:600}
+.fbt{height:5px;background:var(--b3);border-radius:5px;overflow:hidden}
+.fbf{height:100%;border-radius:5px;transition:width .5s ease}
+.fg{background:linear-gradient(90deg,#10b981,#059669)}
+.fw{background:linear-gradient(90deg,#f59e0b,#d97706)}
+.fb2{background:linear-gradient(90deg,#ef4444,#dc2626)}
+.sig{display:flex;align-items:flex-start;gap:6px;padding:6px 8px;border-radius:6px;font-size:11.5px;line-height:1.45;margin-bottom:4px}
+.sig.info{background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.2);color:#93c5fd}
+.sig.warn{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);color:#fcd34d}
+.sig.danger{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);color:#fca5a5}
+.sico{font-size:12px;flex-shrink:0;margin-top:1px}
+.nosig{font-size:11px;color:var(--t3);text-align:center;padding:8px}
+.eirow{display:flex;justify-content:space-between;margin-bottom:3px;font-size:12px}
+.eik{color:var(--t3)}.eiv{color:var(--t1);font-weight:500}
+.prw{display:flex;align-items:center;gap:12px}
+.pr{position:relative;width:50px;height:50px}
+.pr svg{transform:rotate(-90deg)}
+.rbg{stroke:var(--b3);fill:none}
+.rfl2{fill:none;stroke-dasharray:126;stroke-dashoffset:126;transition:stroke-dashoffset .5s;stroke-linecap:round}
+.rct{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700}
+.pi h4{font-size:13px;font-weight:600;margin-bottom:2px}
+.pi p{font-size:11px;color:var(--t3)}
+#plog{font-size:11px;color:var(--t2);max-height:160px;overflow-y:auto;line-height:1.75}
+#plog::-webkit-scrollbar{width:2px}#plog::-webkit-scrollbar-thumb{background:var(--bd)}
+#splash{position:fixed;inset:0;background:var(--b0);display:flex;align-items:center;justify-content:center;z-index:100}
+.sc{background:var(--b1);border:1px solid var(--bd);border-radius:16px;padding:30px;width:420px;max-width:95vw}
+.sico2{width:46px;height:46px;border-radius:12px;background:linear-gradient(135deg,#1d4ed8,#7c3aed);display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:14px}
+.sc h1{font-size:18px;font-weight:700;margin-bottom:4px}
+.sc h2{font-size:12px;color:var(--t3);font-weight:400;margin-bottom:16px}
+.fr{margin-bottom:10px}
+.fl{font-size:12px;color:var(--t2);margin-bottom:4px;display:block}
+.fi{width:100%;background:var(--b2);border:1px solid var(--bd);border-radius:8px;padding:9px 12px;color:var(--t1);font-size:13.5px;font-family:inherit;outline:none;transition:border-color .2s}
+.fi:focus{border-color:var(--acc)}
+.fr2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.go{width:100%;padding:11px;border-radius:10px;background:linear-gradient(135deg,#1d4ed8,#7c3aed);border:none;color:#fff;font-size:14px;font-weight:600;cursor:pointer;transition:opacity .2s}
+.go:hover{opacity:.9}
+.snote{font-size:11px;color:var(--t3);margin-top:8px;text-align:center;line-height:1.5}
+#rmod{position:fixed;inset:0;background:rgba(0,0,0,.8);display:none;align-items:center;justify-content:center;z-index:200;padding:18px}
+#rmod.show{display:flex}
+.rc{background:var(--b1);border:1px solid var(--bd);border-radius:16px;width:560px;max-width:100%;max-height:90vh;overflow-y:auto}
+.rc::-webkit-scrollbar{width:3px}
+.rc::-webkit-scrollbar-thumb{background:var(--bd);border-radius:3px}
+.rh{padding:18px 22px 14px;border-bottom:1px solid var(--bd)}
+.rh h2{font-size:15px;font-weight:700;margin-bottom:3px}
+.rh p{font-size:12px;color:var(--t3)}
+.rsc{padding:18px 22px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:18px}
+.sg{width:90px;height:90px;position:relative;flex-shrink:0}
+.sg svg{transform:rotate(-90deg)}
+.gbg{fill:none;stroke:var(--b3);stroke-width:8}
+.gfl{fill:none;stroke-width:8;stroke-dasharray:239;stroke-dashoffset:239;transition:stroke-dashoffset 1s ease;stroke-linecap:round}
+.gtt{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.gn{font-size:22px;font-weight:800}.gl{font-size:10px;color:var(--t3)}
+.sd{flex:1}
+.rlb{display:inline-block;padding:4px 12px;border-radius:16px;font-size:13px;font-weight:700;margin-bottom:7px}
+.rl-low{background:rgba(16,185,129,.12);color:var(--ok);border:1px solid rgba(16,185,129,.3)}
+.rl-med{background:rgba(245,158,11,.12);color:var(--warn);border:1px solid rgba(245,158,11,.3)}
+.rl-hi{background:rgba(239,68,68,.12);color:var(--bad);border:1px solid rgba(239,68,68,.3)}
+.sdesc{font-size:13px;color:var(--t2);line-height:1.6}
+.rb{padding:0 22px 18px}
+.rsec{margin-top:14px}
+.rst{font-size:12px;font-weight:700;color:var(--t2);margin-bottom:8px;letter-spacing:.5px}
+.dr{margin-bottom:7px}
+.dh{display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px}
+.dt{height:6px;background:var(--b3);border-radius:6px;overflow:hidden}
+.df{height:100%;border-radius:6px;transition:width 1s ease}
+.fi2{display:flex;gap:8px;padding:8px 10px;border-radius:6px;margin-bottom:4px;font-size:12.5px;line-height:1.5}
+.fi2.pos{background:rgba(16,185,129,.07);border:1px solid rgba(16,185,129,.2)}
+.fi2.neg{background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.2)}
+.fi2.neu{background:rgba(59,130,246,.07);border:1px solid rgba(59,130,246,.2)}
+.recb{background:var(--b2);border:1px solid var(--bdl);border-radius:10px;padding:13px;margin-top:9px}
+.recl{font-size:10px;font-weight:700;color:var(--t3);letter-spacing:1px;margin-bottom:5px}
+.rect{font-size:13px;line-height:1.7}
+.ract{display:flex;gap:6px;margin-top:10px}
+.rb2{padding:6px 14px;border-radius:6px;font-size:12px;font-weight:600;border:1px solid var(--bd);cursor:pointer;background:transparent;color:var(--t1);transition:all .2s}
+.rb2:hover{background:var(--b3)}
+.rb2.pri{background:linear-gradient(135deg,#1d4ed8,#7c3aed);border-color:transparent;color:#fff}
+.rftr{padding:11px 22px;border-top:1px solid var(--bd);display:flex;justify-content:space-between;font-size:11px;color:var(--t3)}
+@keyframes fi{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.msg{animation:fi .2s ease}
+</style>
+</head>
+<body>
+
+<div id="splash">
+  <div class="sc">
+    <div class="sico2">🚗</div>
+    <h1>智云汽车金融</h1>
+    <h2>AI专属贷款顾问 · 全程智能服务</h2>
+    <div class="fr2">
+      <div class="fr"><label class="fl">申请人姓名</label><input class="fi" id="fn" placeholder="请输入姓名"></div>
+      <div class="fr"><label class="fl">贷款金额（万元）</label><input class="fi" id="fa" type="number" placeholder="例：18"></div>
+    </div>
+    <div class="fr"><label class="fl">意向车型</label><input class="fi" id="fc" placeholder="例：丰田凯美瑞 2.5L"></div>
+    <button class="go" onclick="boot()">💬 开始咨询</button>
+    <p class="snote">⚙️ 右侧面板为运营商分析视角（用户不可见）</p>
+  </div>
+</div>
+
+<div id="topbar">
+  <div class="logo"><div class="logo-ic">🚗</div><div>智云汽车金融</div></div>
+  <div class="vd"></div>
+  <div class="phase-bar">
+    <div class="ph p1 on" id="ph1">阶段1·建立信任</div>
+    <div class="arr">›</div>
+    <div class="ph p2" id="ph2">阶段2·信息提取</div>
+    <div class="arr">›</div>
+    <div class="ph p3" id="ph3">阶段3·对抗探测</div>
+  </div>
+  <div class="op-tag"><div class="op-dot"></div>运营商视角</div>
+  <div class="vd"></div>
+  <div id="stimer">00:00</div>
+</div>
+
+<div id="main">
+  <div id="chat">
+    <div id="chdr">
+      <div class="av">🤵<div class="av-dot"></div></div>
+      <div class="ainfo"><h3>张顾问</h3><p>汽车金融 · 专属顾问 · 在线</p></div>
+      <div class="sbadge live" id="sbadge">● 服务中</div>
+    </div>
+    <div id="msgs"></div>
+    <div id="typing"><div class="mav" style="background:linear-gradient(135deg,#0f4c81,#4338ca)">🤵</div><div class="tdots"><span></span><span></span><span></span></div><span class="ttxt">顾问正在输入…</span></div>
+    <div id="iarea">
+      <div id="rtrow"><span>⏱ 响应计时</span><div class="rtbar"><div class="rtfill" id="rtf"></div></div><span id="rts">0s</span></div>
+      <div class="irow">
+        <textarea id="inp" rows="2" placeholder="请输入您的回复，Enter 发送…" disabled></textarea>
+        <button id="snd" onclick="send()" disabled>➤</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="apanel">
+    <div class="ps">
+      <div class="pt">🎯 当前探测策略</div>
+      <div class="stbox"><div class="stlbl">🧠 策略说明</div><div id="strat">等待开始…</div></div>
+    </div>
+    <div class="ps">
+      <div class="pt">📊 进度</div>
+      <div class="prw">
+        <div class="pr">
+          <svg width="50" height="50" viewBox="0 0 50 50">
+            <circle class="rbg" cx="25" cy="25" r="20"/>
+            <circle class="rfl2" id="rfl" cx="25" cy="25" r="20" stroke="#3b82f6"/>
+          </svg>
+          <div class="rct" id="rpct">0%</div>
+        </div>
+        <div class="pi"><h4 id="pph">阶段1</h4><p id="pdc">建立信任基线…</p></div>
+      </div>
+    </div>
+    <div class="ps">
+      <div class="pt">⚡ 实时指标</div>
+      <div class="mgrid">
+        <div class="mc"><div class="ml">响应时长</div><div class="mv cn" id="mt">—</div><div class="ms">秒</div></div>
+        <div class="mc"><div class="ml">字数</div><div class="mv cn" id="ml2">—</div><div class="ms">本轮</div></div>
+        <div class="mc"><div class="ml">模糊词</div><div class="mv cg" id="mv2">0</div><div class="ms">累计</div></div>
+        <div class="mc"><div class="ml">自我修正</div><div class="mv cg" id="mc2">0</div><div class="ms">累计</div></div>
+      </div>
+    </div>
+    <div class="ps">
+      <div class="pt">🔬 行为特征</div>
+      <div class="fbr"><div class="fbh"><span class="fbl">信息密度</span><span class="fbv" id="fvd">—</span></div><div class="fbt"><div class="fbf fg" id="fbd" style="width:0%"></div></div></div>
+      <div class="fbr"><div class="fbh"><span class="fbl">前后一致性</span><span class="fbv" id="fvc">—</span></div><div class="fbt"><div class="fbf fg" id="fbc" style="width:0%"></div></div></div>
+      <div class="fbr"><div class="fbh"><span class="fbl">细节完整度</span><span class="fbv" id="fve">—</span></div><div class="fbt"><div class="fbf fg" id="fbe" style="width:0%"></div></div></div>
+      <div class="fbr"><div class="fbh"><span class="fbl">压力稳定性</span><span class="fbv" id="fvs">—</span></div><div class="fbt"><div class="fbf fg" id="fbs" style="width:0%"></div></div></div>
+    </div>
+    <div class="ps"><div class="pt">🚨 风险信号</div><div id="sigs"></div></div>
+    <div class="ps">
+      <div class="pt">📋 已提取信息</div>
+      <div id="eibox"><span style="font-size:12px;color:var(--t3)">等待提取…</span></div>
+    </div>
+    <div class="ps"><div class="pt">🗂️ 探测日志</div><div id="plog"></div></div>
+  </div>
+</div>
+
+<div id="rmod">
+  <div class="rc">
+    <div class="rh"><h2>📋 认知风险分析报告</h2><p id="rmeta">—</p></div>
+    <div class="rsc">
+      <div class="sg">
+        <svg width="90" height="90" viewBox="0 0 90 90">
+          <circle class="gbg" cx="45" cy="45" r="38"/>
+          <circle class="gfl" id="gfl" cx="45" cy="45" r="38" stroke="#10b981"/>
+        </svg>
+        <div class="gtt"><div class="gn" id="rscore">—</div><div class="gl">风险分</div></div>
+      </div>
+      <div class="sd"><div class="rlb rl-low" id="rlvl">计算中</div><div class="sdesc" id="rsum">—</div></div>
+    </div>
+    <div class="rb">
+      <div class="rsec"><div class="rst">多维度评分</div><div id="rdims"></div></div>
+      <div class="rsec"><div class="rst">关键发现</div><div id="rfinds"></div></div>
+      <div class="rsec">
+        <div class="recb"><div class="recl">审核建议</div><div class="rect" id="rrec">—</div>
+          <div class="ract">
+            <button class="rb2 pri" onclick="document.getElementById('rmod').classList.remove('show')">✓ 知晓</button>
+            <button class="rb2" onclick="location.reload()">↺ 重测</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="rftr"><span>ACP v3.1</span><span>演示用途</span></div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+//  ACP v3.1 — BUG FIXED + VERBATIM-REACTIVE GENERATORS
+//  核心修复：① nosig DOM销毁bug ② 问题真正基于用户原话生成
+// ═══════════════════════════════════════════════════════
+
+// ── 13槽平铺流（游标递进，三阶段必完成）──
+const FLOW = [
+  {ph:1,id:'opener'},    {ph:1,id:'lifestyle'},
+  {ph:1,id:'budget'},    {ph:1,id:'work_soft'},
+  {ph:2,id:'income'},    {ph:2,id:'episodic'},
+  {ph:2,id:'debt'},      {ph:2,id:'downpay'},
+  {ph:2,id:'drill'},
+  {ph:3,id:'stress'},    {ph:3,id:'contradict'},
+  {ph:3,id:'social'},    {ph:3,id:'final'},
+];
+
+// 全局null安全DOM查询（必须在顶层，避免updatePhase/showReport作用域找不到$）
+const $ = id => document.getElementById(id);
+
+const S = {
+  cur: -1,            // 游标，-1→boot后变0
+  responses: [],
+  signals: [],
+  sessionStart: 0, qStart: 0,
+  rtSecs: 0, rtInt: null, timerInt: null,
+  cumVague: 0, cumCorrect: 0,
+  locked: false,
+  pendingAck: '',
+  baseline: {avgLen: 0},
+  app: {name:'', amount:0, car:''},
+  ex: {
+    company:null, income:null, workDur:null, jobTitle:null,
+    hasOtherDebt:null, dpSource:null, hasCarAlready:null,
+    carPurpose:null, preferMonthly:null, savings:null
+  },
+  usedReactions: new Set() // 防止重复用同一个echo
+};
+
+// ── 工具 ──
+const pick = a => a[Math.floor(Math.random()*a.length)];
+const last = () => S.responses.at(-1)?.text || '';
+const avg  = a => a.length ? a.reduce((x,y)=>x+y,0)/a.length : 0;
+const esc  = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+const VAGUE = ['大概','差不多','可能','应该','好像','感觉','大约','左右','不确定','也许','大致','估计','基本上','说不准','记不清','大体'];
+const CORR  = ['不对','说错了','应该是','等等','纠正','我是说','不是的','重新说'];
+const AVOID = ['不方便','不好说','这个嘛','比较复杂','说来话长','不太好讲','有些敏感'];
+
+// ── 信息提取 ──
+function extractInfo(txt) {
+  const e = S.ex;
+  if (!e.company) {
+    for (const p of [/在(.{2,12}?(?:公司|集团|有限|科技|金融|银行|学校|医院|机构|工厂|企业|店|所|院))/,/(.{2,12}?公司)工作/,/供职于(.{2,15})/,/在(.{2,10})上班/]) {
+      const m = txt.match(p); if (m) { e.company = m[1].replace(/[，。！？\s]/g,'').slice(0,14); break; }
+    }
+  }
+  if (!e.income) {
+    for (const p of [/月(?:薪|收入|工资|到手)[是有大概约在]?(\d+(?:\.\d+)?)\s*(?:元|万|k|K)/i,/(\d+(?:\.\d+)?)\s*(?:万|k|K)\s*(?:每月|\/月)/i,/收入.{0,8}(\d+(?:\.\d+)?)\s*(?:元|万|k|K)/i,/拿(?:到)?.{0,4}(\d+)(?:元|万)/i]) {
+      const m = txt.match(p);
+      if (m) { let v = parseFloat(m[1]); const raw = m[0].toLowerCase(); if ((raw.includes('万')||raw.includes('k'))&&v<200) v*=10000; if (v>800&&v<150000) { e.income=Math.round(v); break; } }
+    }
+  }
+  if (!e.workDur) {
+    const m = txt.match(/工作了?(\d+)\s*年|干了(\d+)\s*年|(\d+)\s*年(?:了|多|以上)/);
+    if (m) e.workDur = (m[1]||m[2]||m[3])+'年';
+    else { const m2 = txt.match(/(\d+)\s*个月/); if (m2&&parseInt(m2[1])<24) e.workDur = m2[1]+'个月'; }
+  }
+  if (!e.jobTitle) {
+    const m = txt.match(/(?:担任|做|是|职位是|岗位是)(.{2,10}?(?:经理|主管|工程师|设计师|分析师|专员|助理|总监|教师|医生|律师|会计|销售|运营|产品|顾问|总裁|主任|店长))/);
+    if (m) e.jobTitle = m[1];
+  }
+  if (!e.preferMonthly) {
+    const m = txt.match(/月供.{0,6}?(\d{3,5})|每月.{0,5}?(\d{3,5})/);
+    if (m) { const v=parseInt(m[1]||m[2]); if(v>500&&v<20000) e.preferMonthly=v+'元'; }
+  }
+  if (e.hasOtherDebt===null) {
+    if (/没有|没其他|不(?:欠|有)贷款|没有贷款/.test(txt)) e.hasOtherDebt=false;
+    else if (/有.*(?:贷款|房贷|车贷|消费贷)|还在还/.test(txt)) e.hasOtherDebt=true;
+  }
+  if (!e.dpSource) {
+    if (/自己|积蓄|存款/.test(txt)) e.dpSource='自有存款';
+    else if (/家人|父母|爸妈|借/.test(txt)) e.dpSource='家人支持';
+  }
+  if (e.hasCarAlready===null) {
+    if (/没有|没车|第一辆|首次/.test(txt)) e.hasCarAlready=false;
+    else if (/换车|旧车|之前开|现在开/.test(txt)) e.hasCarAlready=true;
+  }
+  if (!e.carPurpose) {
+    if (/通勤|上班/.test(txt)) e.carPurpose='通勤';
+    else if (/家用|家庭|出游|周末|孩子/.test(txt)) e.carPurpose='家用';
+    else if (/生意|业务|客户/.test(txt)) e.carPurpose='商用';
+  }
+}
+
+function extractFeatures(txt) {
+  const vagueCount = VAGUE.filter(w=>txt.includes(w)).length;
+  const selfCorrections = CORR.filter(w=>txt.includes(w)).length;
+  const hasAvoidance = AVOID.some(w=>txt.includes(w));
+  const specifics = (txt.match(/\d{4}年|\d+月|\d+日|¥\d+|\d+元|\d+万|\d+号|\d{1,2}[:：]\d{2}/g)||[]).length;
+  const roundNums = (txt.match(/\d{3,}/g)||[]).filter(n=>parseInt(n)%1000===0).length;
+  return {vagueCount,selfCorrections,hasAvoidance,specificCount:specifics,roundNums,density:Math.min(100,Math.round(specifics*15+txt.length*0.3)),length:txt.length};
+}
+
+// ── 从用户原话中提取可复用片段 ──
+function grabPhrase(txt) {
+  // 公司名
+  const co = S.ex.company; if (co && txt.includes(co)) return co;
+  // 职位
+  const ti = S.ex.jobTitle; if (ti && txt.includes(ti)) return ti;
+  // 数字+单位
+  const numM = txt.match(/(\d+(?:\.\d+)?)\s*(?:年|万|元|个月)/);
+  if (numM) return numM[0];
+  // 地点
+  const locM = txt.match(/在(.{2,6}?(?:区|市|街|路|楼|大厦|附近|这边))/);
+  if (locM) return locM[1];
+  return null;
+}
+
+// ── 应答生成（基于原话回声）──
+function genAck(txt, f) {
+  const phrase = grabPhrase(txt);
+  const isRich = f.specificCount >= 2 && f.length > 50;
+  const isVague = f.vagueCount >= 3 || f.length < 20;
+
+  // 带原话的应答（最自然）
+  if (phrase && !S.usedReactions.has(phrase) && Math.random() > 0.45) {
+    S.usedReactions.add(phrase);
+    return pick([`${phrase}，`, `哦，${phrase}，`, `嗯，${phrase}，`]);
+  }
+  // 基础应答
+  return pick(
+    isRich  ? ['好的，记下来了！','嗯，信息很清楚。','明白了～'] :
+    isVague ? ['嗯，','好的，','明白，'] :
+              ['好的！','了解了。','嗯，']
+  );
+}
+
+// ══════════════════════════════════════════════
+//  问题生成器（每个函数运行时读取真实对话历史）
+//  核心原则：提取用户原话→嵌入问题→问题随对话变化
+// ══════════════════════════════════════════════
+const GEN = {
+
+  opener() {
+    const {name, car} = S.app;
+    return pick([
+      `${name}您好！我是今天的专属顾问张顾问 😊 看到您在考虑${car}，这款车询问量一直很高！您买来主要是哪方面用——通勤上班，还是家用出行，或者有别的需求？`,
+      `您好 ${name}！${car}是个很受欢迎的选择～ 请问您看这辆车，主要打算给谁用、用来做什么？了解一下您的需求，我好给您定方案。`
+    ]);
+  },
+
+  lifestyle() {
+    const txt = last();
+    // 提取用户原话中的关键语义，直接嵌入问题
+    const carPurpose = S.ex.carPurpose;
+
+    if (/换车|换一辆|旧车/.test(txt)) {
+      // 用他说的"换车"来追问
+      const oldCarM = txt.match(/现在开(?:的)?(.{2,10}?(?:车|SUV|轿车))/);
+      const oldCar = oldCarM ? oldCarM[1] : '现在那辆';
+      return `想换车！${oldCar}觉得哪里不够用了——是里程太高，还是空间、油耗方面有问题？`;
+    }
+    if (/家|孩子|老婆|太太|媳妇|父母/.test(txt)) {
+      const familyM = txt.match(/(老婆|太太|媳妇|孩子|父母|家人)/);
+      const who = familyM ? familyM[1] : '家里人';
+      return `带${who}出行，空间和舒适性确实很重要。家里几口人？平时出行主要是市内还是偶尔跑长途？`;
+    }
+    if (/通勤|上班|公司|单位/.test(txt)) {
+      return `上下班通勤用，那路程远不远？现在是开车去还是坐公共交通？`;
+    }
+    if (/生意|业务|客户|跑单/.test(txt)) {
+      return `跑业务用车，那对车的稳定性和空间要求挺高的。平时主要在本地跑还是要出远门？`;
+    }
+    return `${S.app.car}您看中多久了，是最近才决定买，还是已经考虑一段时间了？家里现在有在开的车吗？`;
+  },
+
+  budget() {
+    const txt = last();
+    const loan = S.app.amount;
+    const m48 = Math.round(loan*10000/48*1.065/100)*100;
+    const m60 = Math.round(loan*10000/60*1.055/100)*100;
+    const cp = S.ex.carPurpose;
+
+    // 根据他说的用途来组织问题语气
+    let intro = '';
+    if (S.ex.hasCarAlready === false) intro = '头一次买车，贷款方案选好了确实省心很多。';
+    else if (cp === '通勤') intro = '通勤用，实用就好，月供控制合理最重要。';
+    else if (cp === '家用') intro = '家用车值得投入，毕竟用的时间长。';
+
+    return `${intro}${loan}万的贷款，我帮您粗算了一下：4年期月供约 <b>¥${m48.toLocaleString()}</b>，5年期约 <b>¥${m60.toLocaleString()}</b>。您感觉哪个月供范围比较舒适？`;
+  },
+
+  work_soft() {
+    const txt = last();
+    const e = S.ex;
+    // 用刚才说到的月供偏好来自然过渡
+    if (e.preferMonthly) {
+      return `${e.preferMonthly}左右，记下来了。顺便问一下，您是上班族还是做生意的？不同情况贷款审核方式不一样，我帮您选合适的路。`;
+    }
+    // 用他回答里提到的字来过渡
+    const phrase = grabPhrase(txt);
+    if (phrase) {
+      return `嗯，${phrase}。对了，您现在在哪个行业工作呀？我们对一些行业有利率优惠，帮您看看能不能用上。`;
+    }
+    return pick([
+      `对了，您方便透露一下在哪个行业工作、大概做什么岗位吗？不同行业有专属方案。`,
+      `顺便，您现在是在单位上班还是自己创业？贷款方案会根据情况不同。`
+    ]);
+  },
+
+  income() {
+    const txt = last();
+    const e = S.ex;
+    const co = e.company, title = e.jobTitle;
+
+    // 用他刚才说的月供反推收入（最隐蔽的方式）
+    if (e.preferMonthly) {
+      const m = parseInt(e.preferMonthly);
+      const implied = Math.round(m/0.28/1000)*1000;
+      return `您说月供${e.preferMonthly}比较合适，按30%还款比例算，月收入大概需要 ${implied.toLocaleString()} 元左右才舒服。您那边实际情况大概是这个数吗？`;
+    }
+    // 用他的公司+职位来问
+    if (co && title) return `做${title}，${co}这边薪酬怎么样？我算方案要用到月收入数据，大概说个范围就行，不用很精确。`;
+    if (co) return `在${co}，月收入方便大概透露一下吗？税后就好，我主要是要核算您的还款能力。`;
+
+    // 最后用生活费间接问
+    return pick([
+      `我想更精确地帮您算方案。您每个月税后到手大概多少，工资加上其他收入都算进来？`,
+      `平时一个月固定开销大概多少——房租或房贷、吃饭这些？我好算出您最合适的月供上限。`
+    ]);
+  },
+
+  episodic() {
+    // 情景记忆测试：要求描述具体工作场景，真实经历有细节，虚构的说不清楚
+    const e = S.ex;
+    const co = e.company, dur = e.workDur, title = e.jobTitle;
+
+    if (co && dur) return `在${co}干了${dur}了，应该很熟悉了！平时具体负责什么工作呢，一天的节奏大概是什么样的？`;
+    if (co && title) return `${co}做${title}，平时具体负责哪块？是需要经常出差还是主要坐班？`;
+    if (co) return `您在${co}主要做什么方向的工作？平时大概几点上下班，节奏快吗？`;
+    // 没提公司 - 问工作细节
+    return pick([
+      `您的工作平时主要做什么？能描述一下典型的工作日大概是什么状态吗？`,
+      `您在现在这个岗位工作多久了？主要负责什么，是偏技术、管理，还是销售之类的？`
+    ]);
+  },
+
+  debt() {
+    const e = S.ex;
+    const loan = S.app.amount;
+    const monthly = Math.round(loan*10000/60*1.055/100)*100;
+
+    if (e.income) {
+      const ratio = Math.round(monthly/e.income*100);
+      if (ratio > 33) {
+        return `我算了一下，这笔月供大约占您月收入的${ratio}%，偏高一些。银行审核会把您所有的还款加总算——名下还有其他贷款在还吗，比如房贷、消费贷，或者信用卡大额账单？`;
+      }
+    }
+    return pick([
+      `有个情况提前跟您说——银行审核会把您所有贷款月供加总算负债率。您名下现在还有其他贷款在还吗？提前告诉我，我好帮您调整方案规避风险。`,
+      `信用卡您平时用得多吗？每个月大概有多少账单在还？加上这次月供，我算一下总的还款压力。`
+    ]);
+  },
+
+  downpay() {
+    const e = S.ex;
+    const loan = S.app.amount;
+    const dp = (loan * 0.3).toFixed(1);
+
+    if (e.hasOtherDebt === false) {
+      return `没有其他贷款，很加分！首付方面，${loan}万按三成需要准备 <b>${dp}万</b>。这笔钱您是存好了，还是还在筹备中？主要是自己的积蓄，还是家里帮一部分？`;
+    }
+    return `首付款这块，${loan}万三成首付大概需要 <b>${dp}万</b>。您这边准备好了吗？是自己的存款，还是需要家人支持一部分？`;
+  },
+
+  drill() {
+    // 找最模糊/最少细节的答案，定点追问
+    const e = S.ex;
+    const p2rs = S.responses.filter(r=>r.ph===2);
+
+    // 收入还是空的
+    if (!e.income) {
+      return `我注意到收入这块我们还没有一个明确数字。我直接问您——每个月税后实际到手多少？千位数精度就够。`;
+    }
+    // 在职时长还不知道
+    if (!e.workDur && e.company) {
+      return `对了，${e.company}您在那边做多久了？有些银行对在职时长有门槛，提前确认一下能帮您规避被拒。`;
+    }
+    // 首付来自家人，探存款
+    if (e.dpSource === '家人支持') {
+      return `首付家里帮一部分，理解。那您自己手头大概存了多少？如果临时要备用金，自己能拿出多少？`;
+    }
+    // 有收入+公司，追问收入构成
+    if (e.income && e.company) {
+      return `在${e.company}月薪${e.income.toLocaleString()}元，这是固定工资还是含绩效？年终奖大概几个月薪水？这些我都要算进还款能力里。`;
+    }
+    return `您刚才说的收入是税后到手的吗？另外除了工资，还有没有其他稳定来源——兼职、房租、理财这类？`;
+  },
+
+  // ── 阶段3：对抗探测 ──
+
+  stress() {
+    const e = S.ex;
+    const loan = S.app.amount;
+    const monthly = Math.round(loan*10000/60*1.055/100)*100;
+    const incCtx = e.income ? `您月收入${e.income.toLocaleString()}元，` : '';
+    return `${incCtx}我需要评估一下抗风险能力——假设因为某些情况收入暂时中断了，这辆车每月还款约 <b>¥${monthly.toLocaleString()}</b>，您目前的存款能撑几个月的还款？请给我一个具体数字。`;
+  },
+
+  contradict() {
+    const e = S.ex;
+    const rs = S.responses;
+
+    // 情况1：收入 vs 贷款比例失衡
+    if (e.income && e.income < 5000 && S.app.amount > 10) {
+      return `我需要重新核实一个数字。您提到月收入约${e.income.toLocaleString()}元，但${S.app.amount}万的贷款月供会在3000-4000之间，占收入比例超过60%，这个比例银行通常会拒批。您的实际收入，把所有来源加起来，精确数字是多少？`;
+    }
+    // 情况2：对话中工作年限数字不一致
+    const years = rs.map(r=>{const m=r.text.match(/(\d+)\s*年/);return m?parseInt(m[1]):null;}).filter(x=>x!==null&&x<50);
+    if (years.length>=2) {
+      const mn=Math.min(...years), mx=Math.max(...years);
+      if (mx-mn>=2) return `我注意到您前面提到过${mn}年，又提到${mx}年，对工作时长的说法有点出入。您是哪一年入职现在这家公司的？给我一个具体年份。`;
+    }
+    // 情况3：累计模糊词多
+    if (S.cumVague >= 7) {
+      const co = e.company||'您的单位';
+      return `我梳理了一下，我们对话里关于${co}的收入和工作细节，您用了不少模糊表述。按审核要求，我需要两个精确数字：实际税后月薪，以及名下所有贷款的月还款总额——分别是多少？`;
+    }
+    // 情况4：没有提取到收入
+    if (!e.income) {
+      return `我们聊了这么久，收入这个关键数字还是没有确认到。我直接问：您每个月所有来源的税后实际收入，精确到百位，是多少？`;
+    }
+    // 兜底
+    return `按审核规定，最后核实一下：您在${e.company||'当前单位'}的实际月薪（税后），以及目前所有贷款的月还款合计，这两个数字分别是多少？`;
+  },
+
+  social() {
+    const e = S.ex;
+    const loan = S.app.amount;
+    if (e.hasOtherDebt === true) {
+      return `您有在还其他贷款，加上这次购车月供，每月支出不少了。家里人——伴侣或父母——了解您现在的负债情况吗？他们对这次买车是什么态度？`;
+    }
+    return pick([
+      `这笔${loan}万的贷款，家里人知道吗？另一半或者父母，是支持的状态，还是您还没跟他们说过？银行有时会做家庭核实，提前了解一下。`,
+      `买车贷款这件事，有没有跟家人商量过？他们对您的还款能力是什么看法？`
+    ]);
+  },
+
+  final() {
+    return `最后一个问题——银行征信审核最看重这个。请您如实回答：历史上有没有任何贷款或信用卡还款逾期的记录，哪怕只晚了几天、金额很小？提前说清楚我可以帮您做解释材料；如果不说、被征信查出来，整个申请会直接被拒。`;
+  }
+};
+
+// ── 风险信号检测 ──
+function checkSignals(txt, f) {
+  const s = [];
+  if (f.vagueCount >= 3) s.push({t:'warn', ico:'⚠️', msg:`${f.vagueCount}个模糊词（${VAGUE.filter(w=>txt.includes(w)).slice(0,3).join('、')}）`});
+  if (f.selfCorrections >= 2) s.push({t:'warn', ico:'🔄', msg:`${f.selfCorrections}次自我修正，可能实时构建信息`});
+  if (f.hasAvoidance) s.push({t:'danger', ico:'🚫', msg:'回避性语言，未直接作答'});
+  if (f.length < 18 && S.cur >= 4) s.push({t:'danger', ico:'📉', msg:`回答仅${f.length}字，深度追问阶段异常简短`});
+  if (f.roundNums >= 2) s.push({t:'info', ico:'🔢', msg:'财务数字均为整数，缺乏账目精确度'});
+  if (S.ex.income && S.ex.income < 4500 && S.app.amount > 8) s.push({t:'danger', ico:'💰', msg:`收入贷款比异常（¥${S.ex.income}/月 vs ${S.app.amount}万）`});
+  return s;
+}
+
+// ── 风险评分 ──
+function calcRisk() {
+  const rs = S.responses; if (!rs.length) return {score:0,level:'low',factors:[],dims:{}};
+  let sc = 0; const facs = [];
+  const tv = rs.reduce((a,r)=>a+(r.f?.vagueCount||0),0);
+  const vs = Math.min(22,tv*5); sc += vs;
+  if (vs>10) facs.push({t:'neg',txt:`累计模糊表述${tv}次，可信度受影响`});
+  let ss = 0;
+  if (rs.length>=7){const bl=avg(rs.slice(0,4).map(r=>r.f?.length||0));const ll=avg(rs.slice(-3).map(r=>r.f?.length||0));if(bl>0){const d=1-ll/bl;ss=Math.min(18,Math.max(0,d*28));sc+=ss;if(ss>8)facs.push({t:'neg',txt:`深度追问阶段回答缩短${Math.round(d*100)}%`});}}
+  const cs = Math.min(12,S.cumCorrect*4); sc+=cs;
+  if (cs>6) facs.push({t:'neg',txt:`自我修正${S.cumCorrect}次`});
+  const av = Math.min(18,rs.filter(r=>r.f?.hasAvoidance).length*7); sc+=av;
+  if (av>7) facs.push({t:'neg',txt:'多轮检测到回避性语言'});
+  const ds = Math.max(0,18-avg(rs.map(r=>r.f?.specificCount||0))*4); sc+=ds;
+  if (ds>10) facs.push({t:'neg',txt:'情景细节稀少，真实性特征弱'});
+  if (S.ex.dpSource==='家人支持'){sc+=5;facs.push({t:'neu',txt:'首付来源为家人支持'});}
+  if (S.ex.hasOtherDebt===true){sc+=7;facs.push({t:'neg',txt:'已确认有其他贷款在还'});}
+  const hd=rs.filter(r=>(r.f?.specificCount||0)>=3).length;
+  if (hd>=3) facs.push({t:'pos',txt:`${hd}轮回答细节丰富`});
+  const fin = Math.min(100,Math.round(sc));
+  return {score:fin, level:fin<30?'low':fin<58?'medium':'high', factors:facs,
+    dims:{'信息一致性':Math.max(0,100-vs*2.5-cs*2),'细节完整度':Math.max(0,100-ds*3.5),'压力稳定性':Math.max(0,100-ss*3.5),'配合度':Math.max(0,100-av*3),'综合可信度':Math.max(0,100-fin)}};
+}
+
+// ══════════════════════════════════════
+//  UI 层
+// ══════════════════════════════════════
+function addAI(html, delay) {
+  delay = delay || (1400 + Math.random()*600);
+  return new Promise(res => {
+    document.getElementById('typing').classList.add('show'); scrollB();
+    setTimeout(() => {
+      document.getElementById('typing').classList.remove('show');
+      const m = document.getElementById('msgs');
+      const d = document.createElement('div'); d.className='msg ai';
+      const t = new Date().toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit'});
+      d.innerHTML = `<div class="mav">🤵</div><div><div class="bbl">${html}</div><div class="bmeta">${t}</div></div>`;
+      m.appendChild(d); scrollB(); res();
+    }, delay);
+  });
+}
+function addUser(txt) {
+  const m = document.getElementById('msgs');
+  const d = document.createElement('div'); d.className='msg us';
+  const t = new Date().toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit'});
+  d.innerHTML = `<div class="mav">👤</div><div><div class="bbl">${esc(txt)}</div><div class="bmeta">${t} · ${txt.length}字</div></div>`;
+  m.appendChild(d); scrollB();
+}
+function addSys(t) {
+  const m = document.getElementById('msgs');
+  const d = document.createElement('div'); d.className='sysmsg';
+  d.innerHTML = `<span class="systag">🔒 ${t}</span>`; m.appendChild(d); scrollB();
+}
+function scrollB() { setTimeout(()=>document.getElementById('msgs').scrollTop=99999, 50); }
+function lockInput(v) {
+  S.locked=v;
+  document.getElementById('inp').disabled=v;
+  document.getElementById('snd').disabled=v;
+  if (!v) document.getElementById('inp').focus();
+}
+
+function startRT() {
+  S.rtSecs=0; S.qStart=Date.now();
+  const fill=document.getElementById('rtf'), secs=document.getElementById('rts');
+  fill.style.width='0%'; fill.style.background='';
+  clearInterval(S.rtInt);
+  S.rtInt = setInterval(()=>{
+    S.rtSecs++;
+    secs.textContent = S.rtSecs+'s';
+    const p = Math.min(100,S.rtSecs/90*100);
+    fill.style.width = p+'%';
+    fill.style.background = p>70?'linear-gradient(90deg,#ef4444,#dc2626)':p>45?'linear-gradient(90deg,#f59e0b,#d97706)':'';
+  },1000);
+}
+function stopRT() { clearInterval(S.rtInt); return Math.round((Date.now()-S.qStart)/1000); }
+
+// ── 面板更新（NULL安全）──
+function updatePanel(rt, f) {
+  // ① null安全的setM / setBar（$已在全局定义）
+  const setM = (id,v,cls) => { const e=$(id); if(e){e.textContent=v;e.className='mv '+cls;} };
+  const setBar = (fid,vid,val) => {
+    const fe=$(fid), ve=$(vid); if(!fe||!ve) return;
+    const pct = Math.max(0,Math.min(100,val));
+    fe.style.width = pct+'%';
+    ve.textContent = Math.round(pct)+'%';
+    fe.className = 'fbf '+(pct>60?'fg':pct>35?'fw':'fb2');
+  };
+
+  setM('mt',  rt,           rt<20?'cg':rt<55?'cw':'cb');
+  setM('ml2', f.length,     f.length>60?'cg':f.length>25?'cw':'cb');
+  setM('mv2', S.cumVague,   S.cumVague<4?'cg':S.cumVague<10?'cw':'cb');
+  setM('mc2', S.cumCorrect, S.cumCorrect<2?'cg':S.cumCorrect<5?'cw':'cb');
+
+  setBar('fbd','fvd', f.density);
+  setBar('fbc','fvc', Math.max(0,100-S.cumVague*4-S.cumCorrect*7));
+  setBar('fbe','fve', Math.min(100, avg(S.responses.map(r=>r.f.specificCount))*20));
+  if (S.responses.length >= 6) {
+    const bl = avg(S.responses.slice(0,4).map(r=>r.f.length));
+    setBar('fbs','fvs', bl>0 ? Math.min(100,Math.max(0,(f.length/bl)*60)) : 50);
+  }
+
+  // ② 信号面板：每次完整重绘，不复用DOM（修复nosig null bug）
+  const sigBox = $('sigs');
+  if (sigBox) {
+    if (!S.signals.length) {
+      sigBox.innerHTML = '<div class="nosig">暂无异常信号</div>';
+    } else {
+      sigBox.innerHTML = S.signals.slice(-6).map(s=>
+        `<div class="sig ${s.t}"><span class="sico">${s.ico}</span><span>${s.msg}</span></div>`
+      ).join('') + (S.signals.length>6 ? `<div style="font-size:11px;color:var(--t3);text-align:center">…共${S.signals.length}条</div>`:'');
+    }
+  }
+
+  // ③ 提取信息展示
+  const e = S.ex;
+  const rows = [
+    ['车型',S.app.car],['贷款',S.app.amount+'万元'],
+    ['单位',e.company],['月收入',e.income?'¥'+e.income.toLocaleString():null],
+    ['在职',e.workDur],['职位',e.jobTitle],
+    ['其他债',e.hasOtherDebt===true?'有':e.hasOtherDebt===false?'无':null],
+    ['首付来源',e.dpSource],['购车类型',e.hasCarAlready===true?'换车':e.hasCarAlready===false?'首购':null]
+  ].filter(([,v])=>v);
+  const eiBox = $('eibox');
+  if (eiBox) eiBox.innerHTML = rows.length
+    ? rows.map(([k,v])=>`<div class="eirow"><span class="eik">${k}</span><span class="eiv">${v}</span></div>`).join('')
+    : '<span style="font-size:12px;color:var(--t3)">提取中…</span>';
+
+  // ④ 进度环
+  const pct = Math.round((S.cur+1)/13*100);
+  const off = 126-(126*pct/100);
+  const rfl = $('rfl'); if(rfl) rfl.style.strokeDashoffset=off;
+  const rpct = $('rpct'); if(rpct) rpct.textContent=pct+'%';
+}
+
+function updatePhase(ph) {
+  ['ph1','ph2','ph3'].forEach((id,i)=>{
+    const el=document.getElementById(id); if(!el) return;
+    el.className='ph p'+(i+1);
+    if (i+1<ph) el.classList.add('done');
+    if (i+1===ph) el.classList.add('on');
+  });
+  const info={1:['阶段1','建立信任基线…'],2:['阶段2','隐性信息提取…'],3:['阶段3','对抗压力探测…']};
+  const pp=$('pph'),pd=$('pdc');
+  if(pp) pp.textContent=info[ph][0];
+  if(pd) pd.textContent=info[ph][1];
+}
+
+const STRATEGY = {
+  opener:'开场建立信任，采集基准语言行为',
+  lifestyle:'情景引导：从使用场景提取生活/家庭状态',
+  budget:'月供范围探针：用选择题替代直接问收入',
+  work_soft:'职业软探测：以"行业优惠"为由引出工作信息',
+  income:'收入提取：选用最优间接策略（反推法/行业法/生活法）',
+  episodic:'情景记忆测试：真实经历细节丰富，虚构的说不清楚',
+  debt:'负债探测：以规避风险为由引导主动披露',
+  downpay:'首付来源分析：独立还款能力关键指标',
+  drill:'定点追问：针对最模糊的信息精确打击',
+  stress:'压力场景：失业假设迫使披露真实储蓄水平',
+  contradict:'矛盾探测：基于真实对话历史构建针对性质疑',
+  social:'社会网络探测：家人知情度是隐性违约风险指标',
+  final:'信用历史终确认：正面施压，强调违约后果'
+};
+
+function logProbe(id, strat) {
+  const log = document.getElementById('plog'); if(!log) return;
+  const now = new Date().toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  log.innerHTML += `<div style="margin-bottom:3px"><span style="color:var(--t3)">${now}</span> <span style="color:var(--acc)">[${id}]</span><br><span style="color:var(--t2)">${strat}</span></div>`;
+  log.scrollTop = log.scrollHeight;
+  const st=$('strat'); if(st) st.textContent=strat;
+}
+
+// ── 主流程 ──
+async function nextQ() {
+  S.cur++;
+  if (S.cur >= FLOW.length) { finalize(); return; }
+
+  const slot = FLOW[S.cur];
+  const prevPh = S.cur > 0 ? FLOW[S.cur-1].ph : 0;
+
+  // 阶段切换提示
+  if (slot.ph !== prevPh && prevPh > 0) {
+    const trans = {
+      2: '好的，基本了解了您的情况！接下来帮您精细算一下最合适的方案～',
+      3: '非常感谢！最后还有几个关键信息要确认，按审核规程来的，很快的。'
+    };
+    addSys(`进入阶段${slot.ph}`);
+    await addAI(trans[slot.ph]||'', 1200);
+    updatePhase(slot.ph);
+  }
+
+  logProbe(slot.id, STRATEGY[slot.id]||slot.id);
+  const ack = S.pendingAck; S.pendingAck = '';
+  await addAI(ack + GEN[slot.id]());
+  lockInput(false);
+  startRT();
+}
+
+async function send() {
+  const el = document.getElementById('inp');
+  const txt = el.value.trim();
+  if (!txt || S.locked) return;
+
+  const rt = stopRT();
+  lockInput(true); el.value = '';
+  addUser(txt);
+
+  // 处理响应
+  extractInfo(txt);
+  const f = extractFeatures(txt);
+  S.cumVague   += f.vagueCount;
+  S.cumCorrect += f.selfCorrections;
+  S.responses.push({ph: FLOW[S.cur]?.ph||1, text:txt, time:rt, f});
+
+  // 阶段1结束时计算基线
+  if (S.cur === 3) S.baseline.avgLen = avg(S.responses.map(r=>r.f.length));
+
+  checkSignals(txt, f).forEach(s => S.signals.push(s));
+  S.pendingAck = genAck(txt, f);
+  updatePanel(rt, f);
+
+  setTimeout(() => nextQ(), 300);
+}
+
+document.getElementById('inp').addEventListener('keydown', e => {
+  if (e.key==='Enter' && !e.shiftKey) { e.preventDefault(); send(); }
+});
+
+async function finalize() {
+  lockInput(true);
+  clearInterval(S.timerInt); clearInterval(S.rtInt);
+  const sb=document.getElementById('sbadge');
+  if(sb){sb.textContent='✓ 服务完成';sb.className='sbadge end';}
+  addSys('全部阶段完成 · 生成报告中…');
+  await addAI(`感谢您今天的时间，${S.app.name}！我们已收集了充分的信息，稍后会整理最合适的贷款方案联系您。祝您生活愉快 😊`, 2000);
+  setTimeout(showReport, 1600);
+}
+
+function showReport() {
+  const r = calcRisk();
+  const now = new Date().toLocaleString('zh-CN');
+  const rm=$('rmeta'); if(rm) rm.textContent=`申请人: ${S.app.name} · 共${S.responses.length}轮 · ${now}`;
+
+  const sc = r.score;
+  const gfl=$('gfl');
+  if(gfl){gfl.style.strokeDashoffset=239-(239*sc/100);gfl.style.stroke=sc<30?'#10b981':sc<58?'#f59e0b':'#ef4444';}
+  const rsc=$('rscore'); if(rsc) rsc.textContent=sc;
+
+  const lv=$('rlvl');
+  const lvm={low:['✅ 低风险','rl-low'],medium:['⚠️ 中等风险','rl-med'],high:['🔴 高风险','rl-hi']};
+  if(lv){lv.textContent=lvm[r.level][0];lv.className='rlb '+lvm[r.level][1];}
+
+  const sums={
+    low:`申请人${S.app.name}在三阶段探测中表现一致，信息具体、情景记忆真实，建议进入标准审批。`,
+    medium:`申请人${S.app.name}部分问题有模糊表述，对抗阶段轻度信息收缩，建议结合征信人工复核。`,
+    high:`申请人${S.app.name}多项风险特征明显：频繁模糊、回避关键问题、追问时回答大幅缩短，建议转高风险人工审核。`
+  };
+  const rs=$('rsum'); if(rs) rs.textContent=sums[r.level];
+
+  const rd=$('rdims');
+  if(rd) rd.innerHTML=Object.entries(r.dims).map(([k,v])=>{
+    const vr=Math.round(v);const cls=vr>60?'fg':vr>35?'fw':'fb2';
+    return `<div class="dr"><div class="dh"><span>${k}</span><span style="font-weight:600">${vr}</span></div><div class="dt"><div class="df ${cls}" style="width:${vr}%"></div></div></div>`;
+  }).join('');
+
+  const rf=$('rfinds');
+  if(rf) rf.innerHTML=(r.factors.length?r.factors:[{t:'neu',txt:'建议结合征信报告综合评估'}]).map(f=>
+    `<div class="fi2 ${f.t==='pos'?'pos':f.t==='neg'?'neg':'neu'}"><span>${f.t==='pos'?'✅':f.t==='neg'?'⚠️':'ℹ️'}</span><span>${f.txt}</span></div>`
+  ).join('');
+
+  const recs={
+    low:`建议通过标准自动审批，认知探测未见异常。`,
+    medium:`建议人工复核：①近3个月银行流水；②在职证明；③首付资金来源证明。`,
+    high:`暂缓审批：①电话/实地核实工作单位；②要求面谈补充财务证明；③核查征信报告全貌。`
+  };
+  const rr=$('rrec'); if(rr) rr.textContent=recs[r.level];
+  document.getElementById('rmod').classList.add('show');
+}
+
+function boot() {
+  const name = document.getElementById('fn').value.trim()||'您';
+  const amount = parseFloat(document.getElementById('fa').value)||15;
+  const car = document.getElementById('fc').value.trim()||'丰田凯美瑞';
+  S.app = {name,amount,car};
+  S.sessionStart = Date.now();
+  document.getElementById('splash').style.display='none';
+  updatePhase(1);
+  S.timerInt = setInterval(()=>{
+    const e=Math.floor((Date.now()-S.sessionStart)/1000);
+    const st=document.getElementById('stimer');
+    if(st) st.textContent=String(Math.floor(e/60)).padStart(2,'0')+':'+String(e%60).padStart(2,'0');
+  },1000);
+  addSys(`会话开始 · ${name} · ${car} · ¥${amount}万`);
+  setTimeout(()=>nextQ(), 400);
+}
+</script>
+</body>
+</html>
